@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { verifyWebhook } from '@clerk/express/webhooks'
 import { db } from '../../db/index.js';
 import { eq } from "drizzle-orm";
-import { userTable } from "src/db/oldSchema.js";
+import { userTable } from "../../db/oldSchema.js";
 
 export async function clerkRegisterUser(req: Request, res: Response) {
     try {
