@@ -1,9 +1,12 @@
 import { Stack } from 'expo-router'
-import { AuthProvider } from '../providers/AuthProvider'
+import { ClerkProvider } from '@clerk/clerk-expo'
+import { tokenCache } from '@clerk/clerk-expo/token-cache'
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
+
+    
+    <ClerkProvider tokenCache={tokenCache}>
       <Stack>
         <Stack.Screen name='index' options={{ headerShown: false, title: 'Welcome' }} />
         <Stack.Screen name='(auth)' options={{ headerShown: false, title: 'Auth' }} />
@@ -11,6 +14,8 @@ export default function RootLayout() {
         <Stack.Screen name='category' options={{ headerShown: false, title: 'Category' }} />
         <Stack.Screen name='product' options={{ headerShown: false, title: 'Product' }} />
       </Stack>
-    </AuthProvider>
+    </ClerkProvider>
+    
+
   )
 }

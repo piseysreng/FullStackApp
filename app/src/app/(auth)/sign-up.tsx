@@ -5,7 +5,8 @@ import CustomButton from '../../components/CustomButton';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
+import { useSignUp } from '@clerk/clerk-expo'
 
 const signUpSchema = z.object({
     email: z.string({ message: 'Email is required' }).email('Invalid Email'),
@@ -15,12 +16,28 @@ const signUpSchema = z.object({
 type SignUpFields = z.infer<typeof signUpSchema>;
 
 export default function SignUp() {
-    const { control, handleSubmit, formState: { errors } } = useForm({
+    const { control, handleSubmit, setError,formState: { errors } } = useForm({
         resolver: zodResolver(signUpSchema)
     });
 
-    const onSignUp = (data: SignUpFields) => {
-        console.log('Sign Up:', data.email, data.password)
+    const { signUp, isLoaded } = useSignUp();
+
+    const onSignUp = async (data: SignUpFields) => {
+        if (!isLoaded) return;
+        try {
+            await signUp.create({
+                emailAddress: data.email,
+                password: data.password,
+            });
+
+            await signUp.prepareEmailAddressVerification({strategy: 'email_code'});
+            router.push('/verify');
+        } catch (error) {
+            console.log('Sign Up Error: ' , error);
+            setError('email', {message: error.errors[0].longMessage});
+            setError('password', {message: error.errors[0].longMessage});
+        }
+
     };
 
     return (

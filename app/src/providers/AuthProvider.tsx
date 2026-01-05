@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     useEffect(()=>{
         const checkAuth = async ()=> {
             await new Promise((resolve)=> setTimeout(resolve, 300));
-            setIsAuthenticated(true);
+            setIsAuthenticated(false);
         };
         checkAuth();
     },[]);
