@@ -1,0 +1,22 @@
+export const productData = [
+  { "id": 1, "name": "Apple", "image": "https://example.com/images/apple.jpg", "price": 1.50, "calories": 52 },
+  { "id": 2, "name": "Banana", "image": "https://example.com/images/banana.jpg", "price": 0.50, "calories": 89 },
+  { "id": 3, "name": "Strawberry", "image": "https://example.com/images/strawberry.jpg", "price": 4.00, "calories": 33 },
+  { "id": 4, "name": "Mango", "image": "https://example.com/images/mango.jpg", "price": 2.25, "calories": 60 },
+  { "id": 5, "name": "Blueberry", "image": "https://example.com/images/blueberry.jpg", "price": 5.50, "calories": 57 },
+  { "id": 6, "name": "Orange", "image": "https://example.com/images/orange.jpg", "price": 0.80, "calories": 47 },
+  { "id": 7, "name": "Pineapple", "image": "https://example.com/images/pineapple.jpg", "price": 3.50, "calories": 50 },
+  { "id": 8, "name": "Watermelon", "image": "https://example.com/images/watermelon.jpg", "price": 5.00, "calories": 30 },
+  { "id": 9, "name": "Grape", "image": "https://example.com/images/grape.jpg", "price": 3.00, "calories": 67 },
+  { "id": 10, "name": "Kiwi", "image": "https://example.com/images/kiwi.jpg", "price": 1.20, "calories": 61 },
+  { "id": 11, "name": "Peach", "image": "https://example.com/images/peach.jpg", "price": 1.75, "calories": 39 },
+  { "id": 12, "name": "Pear", "image": "https://example.com/images/pear.jpg", "price": 1.60, "calories": 57 },
+  { "id": 13, "name": "Cherry", "image": "https://example.com/images/cherry.jpg", "price": 6.00, "calories": 50 },
+  { "id": 14, "name": "Papaya", "image": "https://example.com/images/papaya.jpg", "price": 2.50, "calories": 43 },
+  { "id": 15, "name": "Raspberry", "image": "https://example.com/images/raspberry.jpg", "price": 4.50, "calories": 52 },
+  { "id": 16, "name": "Plum", "image": "https://example.com/images/plum.jpg", "price": 0.90, "calories": 46 },
+  { "id": 17, "name": "Lemon", "image": "https://example.com/images/lemon.jpg", "price": 0.60, "calories": 29 },
+  { "id": 18, "name": "Avocado", "image": "https://example.com/images/avocado.jpg", "price": 2.00, "calories": 160 },
+  { "id": 19, "name": "Pomegranate", "image": "https://example.com/images/pomegranate.jpg", "price": 3.75, "calories": 83 },
+  { "id": 20, "name": "Dragon Fruit", "image": "https://example.com/images/dragonfruit.jpg", "price": 4.25, "calories": 60 }
+];

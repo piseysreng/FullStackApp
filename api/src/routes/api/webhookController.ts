@@ -7,15 +7,11 @@ import { userTable } from "../../db/oldSchema.js";
 export async function clerkRegisterUser(req: Request, res: Response) {
     try {
         const evt = await verifyWebhook(req)
-
-        // Do something with payload
-        // For this guide, log payload to console
         const { id } = evt.data
-        const eventType = evt.type
-        // console.log(`Received webhook with ID ${id} and event type of ${eventType}`)
-        // console.log('Webhook payload:', evt.data)
+        const eventType = evt.type        
         if (evt.type === 'user.created') {
-            // Create User in Database
+            // Check if Email exit
+            // Create User in Database (clerkID, email)
             try {
                 const [user] = await db.insert(userTable).values({
                     clerkId: evt.data.id
@@ -25,6 +21,7 @@ export async function clerkRegisterUser(req: Request, res: Response) {
                 res.status(500).send(error);
             }
         }
+        // Check Event if user.deleted >> Change Status
         return res.send('Webhook received')
     } catch (err) {
         console.error('Error verifying webhook:', err)
