@@ -14,7 +14,8 @@ export async function clerkRegisterUser(req: Request, res: Response) {
             // Create User in Database (clerkID, email)
             try {
                 const [user] = await db.insert(userTable).values({
-                    clerkId: evt.data.id
+                    clerkId: evt.data.id,
+                    email: evt.data.email_addresses[0].email_address
                 }).returning();
                 res.status(201).json({message: "Create User Successfully"});
             } catch (error) {

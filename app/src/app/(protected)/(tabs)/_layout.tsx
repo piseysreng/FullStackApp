@@ -1,16 +1,10 @@
 import React from 'react'
 import { Redirect, Tabs } from 'expo-router'
-import { CartIcon, HomeIcon, MoreIcon, OrderIcon } from '../../components/tabIcons'
-import Colors from '../../components/colorCode';
+import { CartIcon, HomeIcon, MoreIcon, OrderIcon } from '../../../components/tabIcons'
+import Colors from '../../../components/colorCode';
 import { useAuth } from '@clerk/clerk-expo'
 
 export default function tabLayout() {
-    const { isSignedIn } = useAuth()
-
-    if (!isSignedIn) {
-        return <Redirect href={'/(auth)/sign-in'} />
-    }
-
     return (
         <Tabs screenOptions={{
             tabBarStyle: {

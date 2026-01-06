@@ -1,6 +1,6 @@
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import HomeProductContainer from '../../components/HomeScreen/homeProductContainer';
+import HomeProductContainer from '../../../components/HomeScreen/homeProductContainer';
 
 
 export default function HomeScreen() {

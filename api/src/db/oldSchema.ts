@@ -12,6 +12,7 @@ export const productsTable = pgTable("products", {
 
 export const userTable = pgTable("users", {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    email: varchar({ length: 255 }).unique(),
     clerkId: varchar({ length: 255 }).unique(),
     createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
     role: varchar({ length: 255 }).default('user'),
