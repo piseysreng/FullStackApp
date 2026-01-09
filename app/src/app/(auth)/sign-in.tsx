@@ -37,7 +37,6 @@ export default function SignIn() {
                 console.log('Sign In Failed');
             }
         } catch (error) {
-            console.log('Signed Error', error);
             if (isClerkAPIResponseError(error)) {
                 setError('email', {message: error.errors[0].longMessage});
                 setError('password', {message: error.errors[0].longMessage});

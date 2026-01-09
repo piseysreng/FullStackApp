@@ -31,7 +31,6 @@ export default function VerifyScreen() {
                 console.log(signUpAttempt);
             }
         } catch (error) {
-            console.log('Error Verify', error);
             setError('code', {message: error.errors[0].longMessage});
         }
     };

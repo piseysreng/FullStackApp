@@ -33,7 +33,6 @@ export default function SignUp() {
             await signUp.prepareEmailAddressVerification({strategy: 'email_code'});
             router.push('/verify');
         } catch (error) {
-            console.log('Sign Up Error: ' , error);
             setError('email', {message: error.errors[0].longMessage});
             setError('password', {message: error.errors[0].longMessage});
         }
