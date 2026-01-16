@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1765252633496,
-      "tag": "0000_breezy_sunfire",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1765252945751,
-      "tag": "0001_plain_gateway",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1765253078170,
-      "tag": "0002_talented_sway",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1767668254252,
-      "tag": "0003_messy_the_executioner",
+      "when": 1768541118278,
+      "tag": "0000_flat_wendigo",
       "breakpoints": true
     }
   ]
