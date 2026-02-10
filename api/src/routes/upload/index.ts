@@ -1,7 +1,7 @@
 import { NextFunction, Router } from 'express';
 import multer from 'multer';
-import { multipleUpload, singleUpload } from './uploadController';
-import { multerHandleError } from '../../middlewares/multerHandleError';
+import { multipleUpload, singleUpload } from './uploadController.js';
+import { multerHandleError } from '../../middlewares/multerHandleError.js';
 
 const upload = multer({
     storage: multer.memoryStorage(),
