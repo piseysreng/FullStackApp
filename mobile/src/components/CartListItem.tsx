@@ -1,19 +1,30 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
 import { CartItem, Category } from '@/assets/TYPES'
 import { Link } from 'expo-router'
 import { products } from '@/assets/Products';
 import { useCartStore } from '../store/cart-store';
+import { useQuery } from '@tanstack/react-query';
+import { Tables } from '../types/database';
+import { fetchProductById } from '@/src/api/products';
 
 export default function CartListItem({ cart }: { cart: CartItem }) {
-    const product = products.find(dataItem => dataItem.id === Number(cart.id));
-    if (!product) {
-        return <Text>Item not found or loading...</Text>;
-    }
+    // const product = products.find(dataItem => dataItem.id === Number(cart.id));
+
+    const { data:product, isLoading, error } = useQuery<Tables<'products'>>({
+        queryKey: ['products', cart.id],
+        queryFn: () => fetchProductById(Number(cart.id))
+    });
+
+   
     const { items, incrementItem, decrementItem, removeItem } = useCartStore();
     const cartItem = items.find(item => item.id === product?.id);
     const initialQuantity = cartItem ? cartItem.quantity : 0;
-      const [quantity, setQuantity] = useState(initialQuantity);
+    const [quantity, setQuantity] = useState(initialQuantity);
+     
+    if (!product) {
+        return <Text>Item not found or loading...</Text>;
+    }
 
     const increasementQuantity = () => {
         incrementItem(product.id);
@@ -26,6 +37,12 @@ export default function CartListItem({ cart }: { cart: CartItem }) {
         removeItem(product.id);
     }
 
+     if (isLoading) { return <ActivityIndicator /> };
+    if (error) { return <Text>Error Fetching Products</Text> };
+
+    // console.log(data);
+   
+
     return (
         <View style={{ padding: 10, backgroundColor: 'orange', marginTop: 5 }}>
             <View>
@@ -34,7 +51,7 @@ export default function CartListItem({ cart }: { cart: CartItem }) {
             <View>
                 <Text>${product.price}</Text>
                 <Text>{product.name}</Text>
-                <Text>{product.kilos} kg</Text>
+                {/* <Text>{product.kilos} kg</Text> */}
             </View>
             <View>
                 <View>

@@ -1,15 +1,11 @@
-'use client'
-
-import { AppSidebar } from '@/components/app-sidebar'
-import CategoryPage from '@/components/CategoryPage'
-import CustomersPage from '@/components/customersPage'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import CategoryPage from '@/src/components/Dashboard/Catetories/CategoryPage'
+import { AppSidebar } from '@/src/components/Dashboard/DashboardLayout/app-sidebar'
 import { Separator } from '@radix-ui/react-separator'
-import { ArrowUpIcon, SquarePlus } from 'lucide-react'
+import { SquarePlus } from 'lucide-react'
 import Link from 'next/link'
-import React from 'react'
 
 export default function DashboardCategoriesPage() {
     return (
@@ -32,7 +28,7 @@ export default function DashboardCategoriesPage() {
                                 </BreadcrumbItem>
                                 <BreadcrumbSeparator className="hidden md:block" />
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage>Categories</BreadcrumbPage>
+                                    <BreadcrumbPage>Category</BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
@@ -40,20 +36,18 @@ export default function DashboardCategoriesPage() {
                 </header>
                 <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
                     <div className='flex justify-between items-center'>
-                        <div><h1>Categories</h1></div>
+                        <div><h1>List of Categories</h1></div>
                         <div>
                             <Button
                                 asChild
-                                onClick={() => { console.log('Add Category Clicked') }}
                                 variant="outline">
-                                <Link href='/dashboard/categories/create'>
-                                    <SquarePlus /> Add Category
-                                </Link>
+                                <Link href="/dashboard/categories/create"><SquarePlus /> Add Category</Link>
+
                             </Button>
                         </div>
                     </div>
                     <div>
-                        <CategoryPage />
+                        <CategoryPage/>
                     </div>
                     {/* <OrdersTable/> */}
 

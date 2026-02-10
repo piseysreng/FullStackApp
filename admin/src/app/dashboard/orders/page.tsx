@@ -1,14 +1,14 @@
 'use client'
 
-import { AppSidebar } from '@/components/app-sidebar'
-import CustomOrderPage from '@/components/customOrdersPage'
-import { OrdersTable } from '@/components/ordersPage'
+import { AppSidebar } from '@/src/components/Dashboard/DashboardLayout/app-sidebar'
+import { OrdersTable } from '@/src/components/Dashboard/Orders/ordersPage'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@radix-ui/react-separator'
 import { ArrowUpIcon, SquarePlus } from 'lucide-react'
 import React from 'react'
+import CustomOrderPage from '@/src/components/Dashboard/Orders/customOrdersPage'
 
 export default function DashboardOrderPage() {
     return (

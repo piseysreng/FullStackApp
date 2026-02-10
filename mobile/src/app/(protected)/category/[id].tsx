@@ -1,20 +1,52 @@
 import { categories } from '@/assets/Categories';
 import { products } from '@/assets/Products';
+import { fetchCategoryById, listProductsByCategoryID } from '@/src/api/categories';
 import ProductListItem from '@/src/components/ProductListItem';
-import { useCartStore } from '@/src/store/cart-store';
+import { Tables } from '@/src/types/database';
+import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native'
 
 export default function CategoryById() {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const category = categories.find(dataItem => dataItem.id === Number(id));
-    if (!category) {
-        return <Text>Item not found or loading...</Text>;
-    }
-    const productByID = products.filter(dataItem => dataItem.category_id === Number(category.id));
 
-    if (!productByID) {
-        console.log('No Products in this category');
+    // 1. All hooks at the TOP
+    const {
+        data: category,
+        isLoading: isCategoryLoading,
+        error: errorCategory
+    } = useQuery<Tables<'categories'>>({
+        queryKey: ['categories', id],
+        queryFn: () => fetchCategoryById(Number(id)),
+        enabled: !!id
+    });
+
+    const {
+        data: productByID,
+        isLoading: isLoadingProduct,
+        error: errorProduct
+    } = useQuery<Tables<'products'>[]>({ // Changed to Array type
+        queryKey: ['products', id],
+        queryFn: () => listProductsByCategoryID(Number(id)),
+        // Optional: Only fetch products once the category is successfully loaded
+        enabled: !!id && !!category
+    });
+
+    // 2. Conditional returns AFTER all hooks
+    if (isCategoryLoading || isLoadingProduct) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center' }}>
+                <ActivityIndicator size="large" />
+            </View>
+        );
+    }
+
+    if (errorCategory || errorProduct) {
+        return <Text>Error loading data...</Text>;
+    }
+
+    if (!category) {
+        return <Text>Category not found</Text>;
     }
 
     const jsonString = JSON.stringify(productByID, null, 2);

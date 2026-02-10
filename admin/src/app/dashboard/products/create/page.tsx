@@ -1,16 +1,15 @@
 'use client'
 
-import { AppSidebar } from '@/components/app-sidebar'
-import { CreateProductForm } from '@/components/CreateProduct'
+import { AppSidebar } from '@/src/components/Dashboard/DashboardLayout/app-sidebar'
+import { CreateProductForm } from '@/src/components/Dashboard/Products/CreateProduct'
 import CustomOrderPage from '@/components/customOrdersPage'
-import { OrdersTable } from '@/components/ordersPage'
-import ProductsPage from '@/components/ProductsPage'
+import { OrdersTable } from '@/src/components/Dashboard/Orders/ordersPage'
+import ProductsPage from '@/src/components/Dashboard/Products/ProductsPage'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { Tables } from '@/src/types'
 import { Separator } from '@radix-ui/react-separator'
-import { ArrowUpIcon, SquarePlus } from 'lucide-react'
-import React from 'react'
 
 export default function DashboardCreateProductPage() {
     return (

@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 import { verifyWebhook } from '@clerk/express/webhooks'
 import { db } from '../../db/index.js';
-import { eq } from "drizzle-orm";
-import { userTable } from "../../db/oldSchema.js";
+import { usersTable } from "../../db/oldSchema.js";
 
 export async function clerkRegisterUser(req: Request, res: Response) {
     try {
@@ -13,7 +12,7 @@ export async function clerkRegisterUser(req: Request, res: Response) {
             // Check if Email exit
             // Create User in Database (clerkID, email)
             try {
-                const [user] = await db.insert(userTable).values({
+                const [user] = await db.insert(usersTable).values({
                     clerkId: evt.data.id,
                     email: evt.data.email_addresses[0].email_address
                 }).returning();

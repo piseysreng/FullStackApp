@@ -1,4 +1,3 @@
-import DashboardSidebar from "@/components/Dashboard/sidebar";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 

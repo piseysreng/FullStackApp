@@ -1,17 +1,37 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
 import { Link, useLocalSearchParams } from 'expo-router';
 import { products } from '@/assets/Products';
 import { useCartStore } from '@/src/store/cart-store';
+import { useQuery } from '@tanstack/react-query';
+import { fetchProductById } from '@/src/api/products';
+import { Database, Tables } from '@/src/types/database';
 
 export default function ProductByID() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const product = products.find(dataItem => dataItem.id === Number(id));
+
+
+
+
+
+  // const product = products.find(dataItem => dataItem.id === Number(id));
+  const { data: product, isLoading, error } = useQuery<Tables<'products'>>({
+    queryKey: ['products', id],
+    queryFn: () => fetchProductById(Number(id))
+  });
+
   const { items, addItem, incrementItem, decrementItem, removeItem } = useCartStore();
   const cartItem = items.find(item => item.id === Number(id));
   const initialQuantity = cartItem ? cartItem.quantity : 0;
   const [quantity, setQuantity] = useState(initialQuantity);
-  const favoritedProduct = product?.favorites;
+  const favoritedProduct = false;
+
+
+
+  if (isLoading) { return <ActivityIndicator /> };
+  if (error) { return <Text>Error Fetching Products</Text> };
+
+  // console.log(data);
 
   if (!product) {
     return <Text>Item not found or loading...</Text>;
@@ -19,7 +39,7 @@ export default function ProductByID() {
 
 
   const increasementQuantity = () => {
-    incrementItem(product.id);
+    incrementItem(product?.id);
   }
   const decreasementQuantity = () => {
     decrementItem(product.id);
@@ -35,19 +55,19 @@ export default function ProductByID() {
       id: product.id,
       quantity: quantity + 1,
       price: product.price,
-      maxQuantity: product.quantity
+      maxQuantity: product.stockQuantity ?? 0
     });
   }
   return (
     <View>
       <View>
-        <Text>Image: {product.image}</Text>
+        <Text>Image: {product.featureImage}</Text>
       </View>
       <View style={{ paddingTop: 10 }} />
       <View>
         <Text>Price: ${product.price}</Text>
         <Text>Name: {product.name}</Text>
-        <Text>Weight: {product.kilos} kg</Text>
+        {/* <Text>Weight: {product.kilos} kg</Text> */}
       </View>
       <View>
         <Pressable onPress={() => { console.log('Favorite Press') }}>

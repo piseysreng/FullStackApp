@@ -1,9 +1,6 @@
-'use client'
-
-import { AppSidebar } from '@/components/app-sidebar'
-import CustomOrderPage from '@/components/customOrdersPage'
-import { OrdersTable } from '@/components/ordersPage'
-import ProductsPage from '@/components/ProductsPage'
+import { AppSidebar } from '@/src/components/Dashboard/DashboardLayout/app-sidebar'
+import { OrdersTable } from '@/src/components/Dashboard/Orders/ordersPage'
+import ProductsPage from '@/src/components/Dashboard/Products/ProductsPage'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
@@ -54,7 +51,6 @@ export default function DashboardProductPage() {
                     <div>
                         <ProductsPage />
                     </div>
-                    {/* <OrdersTable/> */}
 
                 </div>
             </SidebarInset>

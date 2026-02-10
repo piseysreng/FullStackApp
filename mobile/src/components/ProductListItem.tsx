@@ -3,13 +3,14 @@ import { Link } from 'expo-router'
 import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useCartStore } from '../store/cart-store';
 import { useState } from 'react';
+import { Tables } from '../types/database';
 
-export default function ProductListItem({ product }: { product: Product }) {
+export default function ProductListItem({ product }: { product: Tables<'products'> }) {
   const { items, addItem, incrementItem, decrementItem, removeItem } = useCartStore();
   const cartItem = items.find(item => item.id === product?.id);
   const initialQuantity = cartItem ? cartItem.quantity : 0;
   const [quantity, setQuantity] = useState(initialQuantity);
-  const favoritedProduct = product.favorites;
+  const favoritedProduct = false;
 
   const increasementQuantity = () => {
     incrementItem(product.id);
@@ -27,7 +28,7 @@ export default function ProductListItem({ product }: { product: Product }) {
       id: product.id,
       quantity: quantity + 1,
       price: product.price,
-      maxQuantity: product.quantity
+      maxQuantity: product.stockQuantity ?? 0
     });
   }
 
@@ -49,7 +50,7 @@ export default function ProductListItem({ product }: { product: Product }) {
           <Text>Price: ${product.price}</Text>
         </View>
         <Text>{product.name}</Text>
-        <Text>Weight: {product.kilos} kg</Text>
+        {/* <Text>Weight: {product.kilos} kg</Text> */}
         <View>
           <View>
             {!cartItem

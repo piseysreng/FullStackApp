@@ -1,4 +1,4 @@
-import { User } from "lucide-react";
+// import { User } from "lucide-react";
 
 export interface Category {
   id: number;
@@ -6,39 +6,39 @@ export interface Category {
   image: string; // URL to the category cover image
 }
 
-/**
- * Represents the Product structure with 
- * a relational link to Category
- */
-export type Product = {
-  id: number;
-  name: string;
-  price: number;
-  category_id: number; // Foreign key linking to Category.id
-  quantity: number;    // Stock count
-  kilos: number;       // Weight in kilograms
-  favorites: boolean;  // User wishlist status
-  image: string;       // URL to the product image
-}
+// /**
+//  * Represents the Product structure with 
+//  * a relational link to Category
+//  */
+// export type Product = {
+//   id: number;
+//   name: string;
+//   price: number;
+//   category_id: number; // Foreign key linking to Category.id
+//   quantity: number;    // Stock count
+//   kilos: number;       // Weight in kilograms
+//   favorites: boolean;  // User wishlist status
+//   image: string;       // URL to the product image
+// }
 
-/**
- * The Root Object structure for your API response 
- * or local data file
- */
+// /**
+//  * The Root Object structure for your API response 
+//  * or local data file
+//  */
 
-export type InventoryData = {
-  categories: Category[];
-  products: Product[];
-}
+// export type InventoryData = {
+//   categories: Category[];
+//   products: Product[];
+// }
 
-export type CartItem = {
-  id: number;
-  quantity: number;
-  price: number;
-  maxQuantity: number;
-}
+// export type CartItem = {
+//   id: number;
+//   quantity: number;
+//   price: number;
+//   maxQuantity: number;
+// }
 
-export type OrderStatus = 'Pending' | 'Completed' | 'Shipped' | 'InTransit';
+// export type OrderStatus = 'Pending' | 'Completed' | 'Shipped' | 'InTransit';
 
 export type Orders = {
   order_id: number,
@@ -53,12 +53,12 @@ export type Orders = {
   current_status: string
 }
 
-export type OrdersItems = {
-  id: number,
-  order_id: number,
-  product_id: number,
-  product_quantity: number,
-}
+// export type OrdersItems = {
+//   id: number,
+//   order_id: number,
+//   product_id: number,
+//   product_quantity: number,
+// }
 
 export type Customers = {
   customer_id: string,
@@ -74,22 +74,22 @@ export type Customers = {
 
 
 
-// user
-// product
-// product_attribute (size,)
-// category
-// sub_category
-// brand
-// order
-// order_items
-// transactions
-// payment_methods
-// delivery
-// delivery_items
-// review
-// coupon_code
-// audit_logs
-// cart: store temperory before checkout
-// favorites
-// wishlist
-// customer_activities_logs
+// // user
+// // product
+// // product_attribute (size,)
+// // category
+// // sub_category
+// // brand
+// // order
+// // order_items
+// // transactions
+// // payment_methods
+// // delivery
+// // delivery_items
+// // review
+// // coupon_code
+// // audit_logs
+// // cart: store temperory before checkout
+// // favorites
+// // wishlist
+// // customer_activities_logs

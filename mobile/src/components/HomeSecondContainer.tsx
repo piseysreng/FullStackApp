@@ -1,11 +1,22 @@
-import { FlatList, ListRenderItem, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, FlatList, ListRenderItem, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { Link } from 'expo-router'
 import { Category } from '@/assets/TYPES'
-import { categories } from '@/assets/Categories'
+// import { categories } from '@/assets/Categories'
 import CategoryListItem from './CategoryListItem'
+import { useQuery } from '@tanstack/react-query'
+import { listCategories } from '../api/categories'
 
 export default function HomeSecondContainer() {
+
+    const { data: categories, isLoading, error } = useQuery({
+        queryKey: ['categories'],
+        queryFn: listCategories
+    });
+    if (isLoading) { return <ActivityIndicator /> };
+    if (error) { return <Text>Error Fetching Categories</Text> };    
+    
+
     const renderItem: ListRenderItem<Category> = ({ item }) => {
         return (
             <Link href={`/(protected)/category/${item.id.toString()}`}>

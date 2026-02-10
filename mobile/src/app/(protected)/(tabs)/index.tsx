@@ -1,14 +1,24 @@
-import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
 import { Link, useRouter } from 'expo-router';
 import { resetOnboardingStatus } from '@/src/components/onBoardingScreen';
 import { SignOutButton } from '@/src/components/SignOutButton';
-import { products } from '@/assets/Products';
+// import { products } from '@/assets/Products';
 import ProductListItem from '@/src/components/ProductListItem';
 import HomeSecondContainer from '@/src/components/HomeSecondContainer';
+import {useQuery} from '@tanstack/react-query';
+import { listProducts } from '@/src/api/products';
 
 
 export default function ShopPage() {
     const router = useRouter();
+    const {data: products , isLoading, error} = useQuery({
+        queryKey: ['products'],
+        queryFn: listProducts
+    });
+    if (isLoading) {return <ActivityIndicator />};
+    if (error) {return <Text>Error Fetching Products</Text>};
+    
+    console.log(products);
     
     return (
         <View>

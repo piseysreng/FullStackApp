@@ -1,12 +1,12 @@
 'use client'
 
-import { AppSidebar } from '@/components/app-sidebar'
-import CustomersPage from '@/components/customersPage'
+import { AppSidebar } from '@/src/components/Dashboard/DashboardLayout/app-sidebar'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@radix-ui/react-separator'
 import { ArrowUpIcon, SquarePlus } from 'lucide-react'
 import React from 'react'
+import CustomersPage from '@/src/components/Dashboard/Customers/customersPage'
 
 export default function DashboardCustomersPage() {
     return (
