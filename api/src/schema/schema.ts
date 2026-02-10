@@ -1,5 +1,5 @@
 import { createInsertSchema } from "drizzle-zod";
-import { categoriesTable, productsTable } from "./../db/oldSchema";
+import { categoriesTable, productsTable } from "./../db/oldSchema.js";
 
 export const CreateProductSchema = createInsertSchema(productsTable);
 export const UpdateProductSchema = createInsertSchema(productsTable).partial();
