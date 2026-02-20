@@ -5,7 +5,7 @@ import { SignOutButton } from '@/src/components/SignOutButton'
 
 export default function AccountPage() {
   return (
-    <View>
+    <View style={{backgroundColor: 'white',}}>
       <View>
         <Text>Profile Image</Text>
       </View>
