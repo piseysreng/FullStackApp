@@ -15,10 +15,10 @@ export async function clerkRegisterUser(req: Request, res: Response) {
                 const [user] = await db.insert(usersTable).values({
                     clerkId: evt.data.id,
                     email: evt.data.email_addresses[0].email_address,
-                    username: evt.data.username,
-                    firstName: evt.data.first_name,
-                    lastName: evt.data.last_name,
-                    avatar: evt.data.image_url,
+                    // username: evt.data.username,
+                    // firstName: evt.data.first_name,
+                    // lastName: evt.data.last_name,
+                    // avatar: evt.data.image_url,
                 }).returning();
                 res.status(201).json({message: "Create User Successfully"});
             } catch (error) {
