@@ -49,7 +49,7 @@ export default function SignInWith() {
                             return
                         }
 
-                        router.push('/(protected)');
+                        router.push('/(protected)/(tabs)');
                     },
                 })
             } else {

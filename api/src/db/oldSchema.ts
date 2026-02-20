@@ -209,7 +209,7 @@ export type NewProductFavoriteType = InferInsertModel<typeof productFavoritesTab
 export const orderStatusEnum = pgEnum("order_status", ["PENDING", "PAID", "SHIPPED", "DELIVERED", "CANCELLED"]);
 export const ordersTable = pgTable("orders", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer("user_id").notNull().references(() => usersTable.id),
+  userId: varchar("user_id").notNull().references(() => usersTable.clerkId),
   orderNumber: varchar("order_number", { length: 50 }).notNull().unique(),
   subTotal: decimal("sub_total", { precision: 10, scale: 2 }).notNull().default("0"),
   discountAmount: decimal("discount_amount", { precision: 10, scale: 2 }).notNull().default("0"),

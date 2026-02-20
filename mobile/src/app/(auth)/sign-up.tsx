@@ -68,7 +68,7 @@ export default function SignUpScreen() {
 
   if (pendingVerification) {
     return (
-      <>
+      <View style={{backgroundColor: 'white'}}>
         <Text>Verify your email</Text>
         <TextInput
           value={code}
@@ -78,12 +78,12 @@ export default function SignUpScreen() {
         <TouchableOpacity onPress={onVerifyPress}>
           <Text>Verify</Text>
         </TouchableOpacity>
-      </>
+      </View>
     )
   }
 
   return (
-    <View>
+    <View style={{backgroundColor: 'white'}}>
       <>
         <Text>Sign up</Text>
         <TextInput
