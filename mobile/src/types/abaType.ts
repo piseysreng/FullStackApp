@@ -84,7 +84,7 @@ export interface Model {
      * $hash = base64_encode(hash_hmac('sha512', $b4hash, $api_key, true));
      * ```
      */
-    hash: string;
+    hash?: string;
     /**
      * A base64-encoded JSON array describing the items being purchased.
      *
