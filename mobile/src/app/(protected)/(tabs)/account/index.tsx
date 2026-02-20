@@ -17,6 +17,10 @@ export default function AccountPage() {
         <View><Link href='/(protected)/(tabs)/account/credit-card'><Text>Credit Cards</Text></Link></View>
         <View><Link href='/(protected)/(tabs)/account/transactions'><Text>Transactions</Text></Link></View>
         <View><Link href='/(protected)/(tabs)/account/notifications'><Text>Notifications</Text></Link></View>
+        <View><Link href='/(protected)/(tabs)/account/webView'><Text>webView</Text></Link></View>
+        <View><Link href='/(protected)/(tabs)/account/testPayment'><Text>Test Payment</Text></Link></View>
+        <View><Link href='/(protected)/(tabs)/account/testPaymentQR'><Text>Test Payment QRCode</Text></Link></View>
+        <View><Link href='/(protected)/(tabs)/account/checkTransaction'><Text>Check Transaction</Text></Link></View>
         <View><SignOutButton/></View>
         
       </View>

@@ -18,8 +18,6 @@ export default function ShopPage() {
     if (isLoading) {return <ActivityIndicator />};
     if (error) {return <Text>Error Fetching Products</Text>};
     
-    console.log(products);
-    
     return (
         <View>
             <View>
