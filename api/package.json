@@ -19,7 +19,7 @@
   "dependencies": {
     "@clerk/express": "^1.7.56",
     "@types/node": "^25.0.9",
-    "cloudinary": "^2.9.0",
+    "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.4",
     "drizzle-orm": "^0.45.0",
