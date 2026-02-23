@@ -1,34 +1,42 @@
 import { Request, Response } from "express";
 import { db } from '../../db/index.js';
-import {eq} from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { orderItemsTable, ordersTable } from "../../../src/db/oldSchema.js";
+import { getAuth } from "@clerk/express";
 
 export async function createOrder(req: Request, res: Response) {
     try {
-        const userId = '123dslfsfsaojsdlfa';
-        // const items = req.body.items;
+        const { userId } = getAuth(req);
+
         if (!userId) {
-            res.status(400).json({ message: 'No User Id' });
+            return res.status(400).json({ message: 'No User Id' });
         }
+        // FIX 2: Dynamic Order Number (prevents Unique Constraint error)
+        // const uniqueOrderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+
         // Insert in Orders Table
-        const [order] = await db.insert(ordersTable).values({
-                userId: userId ,
-                orderNumber: '2908sjfljasofa',
-                shippingAddress: 'j9uslkjdfasfua',
-                billingAddress: '29u8sdfljslfa9ulsf'
-            }).returning();
-        res.status(201).json({order})
+        // const [order] = await db.insert(ordersTable).values({
+        //         userId,
+        //         orderNumber: uniqueOrderNumber, 
+        //         shippingAddress: 'j9uslkjdfasfua',
+        //         billingAddress: '29u8sdfljslfa9ulsf'
+        //     }).returning();
 
-        // const orderItems = items.map((item: any) => ({
-        //     ...item,
-        //     orderId: order.id,
-        // }));
+        // FIX 3: Add 'return' so it doesn't try to run anything else
+        return res.status(201).json({
+            success: true,
+            message: "Token verified and user identified",
+            userId: userId
+        });
 
-        // Insert in OrderItems Table
-        // const newOrderItems = await db.insert(orderItemsTable).values(orderItems).returning();
-        // res.status(201).json({ ...order, items: newOrderItems })
     } catch (error) {
-        res.status(400).json({ message: 'Invalid Oder Data' });
+        // Helpful Tip: Log the actual error so you can see why it failed!
+        console.error("Database Error:", error);
+
+        return res.status(400).json({
+            message: 'Invalid Order Data',
+            error: error instanceof Error ? error.message : error
+        });
     }
 };
 

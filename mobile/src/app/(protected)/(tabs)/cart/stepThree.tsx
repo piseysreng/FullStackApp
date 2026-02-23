@@ -1,20 +1,27 @@
 import React, { useState } from 'react';
-import { 
-    StyleSheet, View, Text, TouchableOpacity, ScrollView, 
-    Alert, ActivityIndicator, Platform 
+import {
+    StyleSheet, View, Text, TouchableOpacity, ScrollView,
+    Alert, ActivityIndicator, SafeAreaView
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { useCartStore } from '@/src/store/cart-store';
 import { useMutation } from '@tanstack/react-query';
 import { createOrder } from '@/src/api/orders';
+import { useAuth } from '@clerk/clerk-expo';
 
+// --- Types ---
 interface SavedMethod {
     id: string;
     type: 'aba' | 'card';
     lastDigits: string;
-    brand?: string; 
+    brand?: string;
+}
+
+interface OrderItem {
+    productId: string | number;
+    quantity: number;
+    price: number;
 }
 
 const SAVED_METHODS: SavedMethod[] = [
@@ -26,102 +33,79 @@ export default function StepThree() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [selectedId, setSelectedId] = useState<string>('');
-    
-    // Pulling EVERYTHING from the store
+    const { getToken } = useAuth();
+
+    // Pulling store data
     const { items, delivery, getTotalPrice, getSubtotal, shippingDetails } = useCartStore();
 
+    // --- Mutation Setup ---
     const createOrderMutation = useMutation({
-        // Add Detail to Cart Database
-        mutationFn: () => createOrder(
-            items.map((item) => ({
+        // We pass an object containing both items and the token
+        mutationFn: async ({ token }: { token: string }) => {
+            return await createOrder(token);
+        },
+        onSuccess: (data) => {
+            console.log('✅ Order created in database:', data);
+        },
+        onError: (error) => {
+            console.error('❌ Order creation failed:', error);
+        },
+    });
+
+    // --- Logic ---
+    const handlePay = async () => {
+        if (!selectedId) {
+            Alert.alert("Selection Required", "Please select a payment method.");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            // 1. Get Token inside the function (Fixes the Suspense error)
+            const token = await getToken();
+            
+            if (!token) {
+                Alert.alert("Authentication Error", "Could not retrieve your session. Please log in again.");
+                setLoading(false);
+                return;
+            }
+
+            // 2. Map Items for API
+            const itemsData: OrderItem[] = items.map((item) => ({
                 productId: item.id,
                 quantity: item.quantity,
                 price: item.price
-            }))
-        ),
-        onSuccess: (data) => {
-            console.log('Successful Add to Cart Table')
-            // Start Call Payment API
-            // resetCart();
-            // router.push(`/orders/${data.id}`);
-        },
-        onError: (error) => { console.log(error) },
-    });
-    
+            }));
 
-    const handlePay = async () => {
-        if (!selectedId) return;
-        setLoading(true);
+            // 3. Execute Mutation and wait for result
+            await createOrderMutation.mutateAsync({ token });
 
-        const savedMatch = SAVED_METHODS.find(m => m.id === selectedId);
-        
-        // --- CONSOLE LOGS (Now using real data) ---
-        console.log("------- CHECKOUT DATA REVIEW -------");
-        
-        console.log("📦 ITEMS LIST:", items.map(i => ({
-            product_id: i.id,
-            quantity: i.quantity,
-            unit_price: `$${i.price}`
-        })));
+            // 4. Log local data for debugging
+            const savedMatch = SAVED_METHODS.find(m => m.id === selectedId);
+            console.log("------- CHECKOUT DATA REVIEW -------");
+            console.log("💰 TOTAL:", getTotalPrice());
+            console.log("💳 METHOD:", selectedId);
 
-        console.log("👤 CUSTOMER DETAIL:", {
-            name: shippingDetails.fullName,
-            email: shippingDetails.email,
-            phone: shippingDetails.phoneNumber,
-            address: `${shippingDetails.address}, ${shippingDetails.city}`
-        });
-
-        console.log("🚚 DELIVERY OPTION:", {
-            title: delivery.title,
-            fee: `$${delivery.price.toFixed(2)}`
-        });
-
-        console.log("💳 PAYMENT OPTION:", {
-            id: selectedId,
-            type: savedMatch ? `Saved ${savedMatch.type}` : selectedId
-        });
-        
-        console.log("💰 SUMMARY:", {
-            subtotal: `$${getSubtotal()}`,
-            delivery: `$${delivery.price.toFixed(2)}`,
-            total: `$${getTotalPrice()}`
-        });
-        console.log("------------------------------------");
-
-        try {
-            // Prepare Payload for Single Backend Endpoint
-            const orderPayload = {
-                items: items,
-                customer_details: shippingDetails, // ACTUAL DATA FROM STEP 2
-                delivery: delivery,
-                payment: {
-                    method: selectedId,
-                    is_saved: !!savedMatch,
-                    amount: getTotalPrice()
-                }
-            };
-
-            // API Call placeholder: await axios.post('/api/order', orderPayload);
-
-            setTimeout(() => {
-                setLoading(false);
-                if (selectedId === 'new_aba') {
-                    router.push('/(protected)/(tabs)/cart/abaQrDisplay');
-                } else if (selectedId === 'new_card') {
-                    router.push('/(protected)/(tabs)/cart/creditCardForm');
-                } else {
-                    Alert.alert("Success", "Payment Initiated Successfully!");
-                }
-            }, 1500);
+            // 5. Navigate based on selection
+            if (selectedId === 'new_aba') {
+                router.push('/(protected)/(tabs)/cart/abaQrDisplay');
+            } else if (selectedId === 'new_card') {
+                router.push('/(protected)/(tabs)/cart/creditCardForm');
+            } else {
+                Alert.alert("Success", "Order placed successfully!");
+            }
 
         } catch (error) {
+            Alert.alert("Order Error", "We couldn't process your order. Please try again.");
+        } finally {
             setLoading(false);
-            Alert.alert("Error", "Payment failed to initialize.");
         }
     };
 
     return (
         <SafeAreaView style={styles.container}>
+            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color="#333" />
@@ -130,29 +114,42 @@ export default function StepThree() {
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
+                {/* Total Amount Card */}
                 <View style={styles.amountCard}>
                     <Text style={styles.amountLabel}>Total Payment</Text>
                     <Text style={styles.amountValue}>${getTotalPrice()}</Text>
                 </View>
 
+                {/* New Methods */}
                 <Text style={styles.sectionTitle}>Add New Method</Text>
-                <TouchableOpacity style={[styles.methodCard, selectedId === 'new_aba' && styles.selectedCard]} onPress={() => setSelectedId('new_aba')}>
+                <TouchableOpacity 
+                    style={[styles.methodCard, selectedId === 'new_aba' && styles.selectedCard]} 
+                    onPress={() => setSelectedId('new_aba')}
+                >
                     <Ionicons name="qr-code-outline" size={24} color={selectedId === 'new_aba' ? "#005a9c" : "#555"} />
                     <Text style={[styles.methodTitle, selectedId === 'new_aba' && styles.selectedText]}>ABA KHQR</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={[styles.methodCard, selectedId === 'new_card' && styles.selectedCard]} onPress={() => setSelectedId('new_card')}>
+                <TouchableOpacity 
+                    style={[styles.methodCard, selectedId === 'new_card' && styles.selectedCard]} 
+                    onPress={() => setSelectedId('new_card')}
+                >
                     <FontAwesome name="credit-card" size={20} color={selectedId === 'new_card' ? "#005a9c" : "#555"} />
                     <Text style={[styles.methodTitle, selectedId === 'new_card' && styles.selectedText]}>New Credit Card</Text>
                 </TouchableOpacity>
 
+                {/* Saved Methods */}
                 {SAVED_METHODS.length > 0 && (
                     <View style={{ marginTop: 20 }}>
                         <Text style={styles.sectionTitle}>Saved Payment Methods</Text>
                         {SAVED_METHODS.map((item) => {
                             const isSelected = selectedId === item.id;
                             return (
-                                <TouchableOpacity key={item.id} style={[styles.methodCard, isSelected && styles.selectedCard]} onPress={() => setSelectedId(item.id)}>
+                                <TouchableOpacity 
+                                    key={item.id} 
+                                    style={[styles.methodCard, isSelected && styles.selectedCard]} 
+                                    onPress={() => setSelectedId(item.id)}
+                                >
                                     <Ionicons name={item.type === 'aba' ? "wallet-outline" : "card-outline"} size={24} color={isSelected ? "#005a9c" : "#555"} />
                                     <View style={{ flex: 1, marginLeft: 12 }}>
                                         <Text style={[styles.methodTitle, isSelected && styles.selectedText]}>
@@ -169,9 +166,10 @@ export default function StepThree() {
                 )}
             </ScrollView>
 
+            {/* Footer Button */}
             <View style={styles.footer}>
-                <TouchableOpacity 
-                    style={[styles.payButton, !selectedId && styles.disabledButton]} 
+                <TouchableOpacity
+                    style={[styles.payButton, !selectedId && styles.disabledButton]}
                     onPress={handlePay}
                     disabled={!selectedId || loading}
                 >
