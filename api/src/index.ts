@@ -6,6 +6,7 @@ import clerkRoutes from './routes/clerk/index.js';
 import uploadRoutes from './routes/upload/index.js';
 import abaRoutes from './routes/aba/index.js';
 import ordersRoutes from './routes/orders/index.js';
+import paymentsRoutes from './routes/payments/index.js';
 
 const port = process.env.PORT || 3001;
 // const cors = require('cors');
@@ -29,6 +30,7 @@ app.use('/api', clerkRoutes);
 app.use('/upload', uploadRoutes);
 app.use('/aba', abaRoutes);
 app.use('/orders', ordersRoutes);
+app.use('/payment', paymentsRoutes);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);

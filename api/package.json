@@ -18,9 +18,10 @@
   "description": "",
   "dependencies": {
     "@clerk/express": "^1.7.56",
-    "@types/node": "^25.0.9",
+    "axios": "^1.13.5",
     "cloudinary": "^1.41.3",
-    "cors": "^2.8.5",
+    "cors": "^2.8.6",
+    "crypto-js": "^4.2.0",
     "dotenv": "^17.2.4",
     "drizzle-orm": "^0.45.0",
     "drizzle-zod": "^0.8.3",
@@ -30,15 +31,17 @@
     "nodemon": "^3.1.11",
     "pg": "^8.16.3",
     "slugify": "^1.6.6",
-    "ts-node": "^10.9.2",
     "zod": "^4.3.5"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
+    "@types/crypto-js": "^4.2.2",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.0.0",
+    "@types/node": "^25.3.0",
     "@types/pg": "^8.15.6",
     "drizzle-kit": "^0.31.8",
+    "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
