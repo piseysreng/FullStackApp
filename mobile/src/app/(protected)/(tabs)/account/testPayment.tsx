@@ -7,10 +7,10 @@ import { WebViewSource } from 'react-native-webview/lib/WebViewTypes';
 
 // --- PAYWAY CONFIG ---
 const API_URL = 'https://checkout-sandbox.payway.com.kh/api/payment-gateway/v1/payments/purchase';
-// const MERCHANT_ID = 'ec000262'; // <--- Change this
-const MERCHANT_ID = 'ec463658'; // <--- Change this
-// const API_KEY = '308f1c5f450ff6d971bf8a805b4d18a6ef142464';         // <--- Change this
-const API_KEY = 'caf065bfd0b7bd65f1e1614eb36884ffa92d0525';         // <--- Change this
+const MERCHANT_ID = 'ec000262'; // <--- Change this
+// const MERCHANT_ID = 'ec463658'; // <--- Change this
+const API_KEY = '308f1c5f450ff6d971bf8a805b4d18a6ef142464';         // <--- Change this
+// const API_KEY = 'caf065bfd0b7bd65f1e1614eb36884ffa92d0525';         // <--- Change this
 
 export default function App() {
     const [paymentHtml, setPaymentHtml] = useState<WebViewSource | null>(null);
@@ -48,7 +48,7 @@ export default function App() {
             email: "test@example.com",
             phone: "012345678",
             type: "purchase",
-            payment_option: "cards",
+            payment_option: "alipay",
             return_url: "",
             cancel_url: "",
             continue_success_url: "",

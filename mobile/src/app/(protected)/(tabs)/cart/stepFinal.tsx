@@ -6,6 +6,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { useCartStore } from '@/src/store/cart-store';
+import { useMutation } from '@tanstack/react-query';
 import { createOrder } from '@/src/api/orders';
 import { useAuth } from '@clerk/clerk-expo';
 import { OrdersItems } from '@/assets/TYPES';
@@ -15,10 +16,6 @@ import QRCode from 'react-native-qrcode-svg';
 import { useEffect } from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import { WebView } from 'react-native-webview';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { useRef } from 'react'; // Add this to your imports
-// import { usePaymentStatus } from '@/src/hooks/paymentProvider';
-import { usePaymentStatus } from '@/src/hooks/paymentProvider';
 
 // --- Types ---
 interface SavedMethod {
@@ -46,180 +43,195 @@ const SAVED_METHODS: SavedMethod[] = [
     { id: 'save_2', type: 'card', lastDigits: '4242', brand: 'Visa' },
 ];
 
-// type PaymentType = 'new_aba' | 'new_card' | 'saved_method' | string;
-
-export default function StepThree() {
+export default function StepFinal() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [selectedId, setSelectedId] = useState<string>('');
     const { getToken } = useAuth();
     const [qrVisible, setQrVisible] = useState(false);
     const [qrData, setQrData] = useState<{ qrString: string, deeplink: string, orderNumber: string } | null>(null);
-    const pollingStartTime = useRef<number | null>(null);
+    const [pollingStartTime, setPollingStartTime] = useState<number | null>(null);
     const [paymentHtml, setPaymentHtml] = useState<string | null>(null);
     const [showWebView, setShowWebView] = useState(false);
     const [webViewSource, setWebViewSource] = useState<WebViewPostSource | null>(null);
-    const [isTimedOut, setIsTimedOut] = useState(false);
-    const [timeLeft, setTimeLeft] = useState<number>(180);
-    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-    };
-
-    // Start timer function
-    const startTimer = () => {
-        if (timerRef.current) clearInterval(timerRef.current);
-        setTimeLeft(180); // Reset to 5 minutes (adjust based on your API expiry)
-
-        timerRef.current = window.setInterval(() => {
-            setTimeLeft((prev) => {
-                if (prev <= 1) {
-                    if (timerRef.current) clearInterval(timerRef.current);
-                    setQrVisible(false);
-                    Alert.alert("Expired", "Payment session expired.");
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-    };
-
-    // const { startPolling, isPaid } = usePaymentStatus();
-    const { startPolling, isPaid } = usePaymentStatus();
 
     // Pulling store data
     const { items, delivery, getTotalPrice, getSubtotal, shippingDetails } = useCartStore();
 
-
-    // Side effect to handle navigation/alerts upon success
-    // useEffect(() => {
-    //     if (statusData?.status === 'PAID' || statusData?.success || statusData?.status === 'APPROVED') {
-    //         handlePaymentSuccess();
-    //     }
-    // }, [statusData]);
-
     useEffect(() => {
-        return () => {
-            if (timerRef.current) clearInterval(timerRef.current);
-        };
-    }, []);
+        let interval: any;
 
-    useEffect(() => {
-        if (isPaid && qrVisible) {
-            setQrVisible(false);
-            handlePaymentSuccess();
-            if (timerRef.current) clearInterval(timerRef.current);
+        // Trigger polling if either the QR modal is open OR the WebView is open
+        if ((qrVisible && qrData) || (showWebView && qrData)) {
+            const startTime = Date.now();
+
+            interval = setInterval(async () => {
+                const elapsedSeconds = (Date.now() - startTime) / 1000;
+
+                // Stop polling after 5 minutes (300 seconds)
+                if (elapsedSeconds > 300) {
+                    clearInterval(interval);
+                    setQrVisible(false);
+                    setShowWebView(false);
+                    Alert.alert("Session Expired", "Payment time limit reached. Please try again.");
+                    return;
+                }
+
+                if (!qrData?.orderNumber || qrData.orderNumber === 'undefined') {
+                    console.log("⏸️ Polling paused: Waiting for valid Order Number...");
+                    return;
+                }
+
+                try {
+                    console.log(`Checking status for Order: ${qrData?.orderNumber}... (${Math.round(elapsedSeconds)}s)`);
+
+                    // --- THE ACTUAL API CALL ---
+                    // You need to ensure your API returns a status field
+                    const response = await checkPaymentStatus(qrData?.orderNumber);
+
+                    if (response.status === 'PAID' || response.success === true) {
+                        console.log("✅ Payment Verified via Polling");
+                        clearInterval(interval);
+                        handlePaymentSuccess();
+                    }
+                } catch (error) {
+                    // We don't alert on error here to keep the UI smooth during flickers
+                    console.error("Polling check failed:", error);
+                }
+            }, 3000); // 3 seconds
         }
-    }, [isPaid, qrVisible]);
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [qrVisible, showWebView, qrData]);
 
     const handlePaymentSuccess = () => {
+        // 1. Close any open modals
         setQrVisible(false);
+        setShowWebView(false);
         setQrData(null);
+        setWebViewSource(null);
+
+        // 2. Clear Cart or State if necessary
+        // useCartStore.getState().clearCart(); 
+
+        // 3. Navigate to success screen
         Alert.alert("Success", "Payment completed successfully!");
-        // router.replace('/success-screen'); 
+        // router.push('/(protected)/(tabs)/cart/success'); // Adjust path to your success screen
     };
 
     const payWithQRCodeMutation = useMutation({
+        // We pass orderNumber as an argument here
         mutationFn: async (orderNumber: string) => {
             const response = await paymentKQCode(orderNumber);
+            // We attach the orderNumber to the response so onSuccess can see it
             return { ...response, orderNumber };
         },
         onSuccess: (data) => {
-            // --- 📋 API RESPONSE DEBUG ---
-            console.log("==========================================");
-            console.log("🌐 API RESPONSE RECEIVED:", data.orderNumber);
-            console.log(JSON.stringify(data, null, 2));
-            console.log("==========================================");
+            console.log('✅ QR Data Received for Order:', data.orderNumber);
 
-            // CASE 1: SUCCESS - Everything is okay, open the modal
             if (data.success && data.qrString) {
                 setQrData({
                     qrString: data.qrString,
                     deeplink: data.deeplink,
+                    orderNumber: data.orderNumber // <--- CRITICAL: Set this here!
+                });
+                setQrVisible(true);
+            }
+        },
+        onError: (error) => {
+            Alert.alert("Payment Error", "Could not generate KHQR code.");
+        },
+    });
+
+    const payWithCardMutation = useMutation({
+        mutationFn: async (orderNumber: string) => {
+            return await paymentCreditCard(orderNumber);
+        },
+        onSuccess: (data) => {
+            // --- TERMINAL LOGGING START ---
+            console.log("================ PAYWAY DEBUG ================");
+            console.log("PAYMENT URL:", data.url);
+
+            // This prints a nice table in your terminal/Metro Bundler
+            console.table(data.params);
+
+            // Check if hash exists
+            if (!data.params.hash) {
+                console.error("❌ ERROR: Hash is missing from response!");
+            }
+
+            // Decode URLs in terminal to verify them
+            try {
+                const successUrl = Buffer.from(data.params.return_url, 'base64').toString();
+                console.log("DECODED SUCCESS URL:", successUrl);
+            } catch (e) {
+                console.log("Could not decode success URL (it might not be base64 yet)");
+            }
+            console.log("==============================================");
+            // --- TERMINAL LOGGING END ---
+
+            if (data.url && data.params) {
+                const formBody = Object.keys(data.params)
+                    .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(data.params[key])}`)
+                    .join('&');
+
+                setQrData({
+                    qrString: '',
+                    deeplink: '',
                     orderNumber: data.orderNumber
                 });
-                pollingStartTime.current = Date.now();
-                setQrVisible(true);
-                startTimer();
-            }
 
-            // CASE 2: METHOD DISABLED - Merchant account issue
-            else if (data.error_type === "METHOD_DISABLED") {
-                Alert.alert(
-                    "Payment Method Unavailable",
-                    "KHQR is not currently enabled for this merchant. Please try using a Credit Card or another method.",
-                    [
-                        {
-                            text: "OK",
-                            onPress: () => {
-                                // Reset selection so the user can pick another method
-                                setSelectedId('');
-                            }
-                        }
-                    ]
-                );
-            }
+                setWebViewSource({
+                    uri: data.url,
+                    method: 'POST',
+                    body: formBody,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                });
 
-            // CASE 3: OTHER ERRORS (General fallback)
-            else {
-                Alert.alert(
-                    "Payment Error",
-                    data.message || "An unexpected error occurred. Please try again later."
-                );
+                // Automatically open WebView now that we are logging to terminal
+                setShowWebView(true);
             }
         },
         onError: (error: any) => {
-            console.error("❌ Mutation Error:", error);
-            Alert.alert("Network Error", "Could not connect to the payment server.");
+            console.error("❌ API ERROR:", error.response?.data || error.message);
+            Alert.alert("Payment Error", "Check Terminal for details.");
         },
     });
 
     // --- Mutation Setup ---
     const createOrderMutation = useMutation({
+        // Updated to include shippingAddress in the arguments
         mutationFn: async ({ itemsData, shippingAddress, deliveryOption, paymentMethod, token }: any) => {
             return await createOrder(itemsData, shippingAddress, deliveryOption, paymentMethod, token);
         },
         onSuccess: async (data) => {
-            const orderId = data.orderNumber;
-            console.log('✅ Order Created:', orderId);
-
-            // PATH A: ABA KHQR (Opens Modal)
+            const generatedOrderNumber = data.orderNumber;
+            console.log('✅ Order & Items created:', data);
+            // Start Payment API
             if (selectedId === 'new_aba') {
-                // Start global background polling
-                startPolling(data.orderNumber, 'new_aba'); // This triggers the useQuery in the Provider
-                setQrVisible(true);
-                payWithQRCodeMutation.mutate(orderId);
-                // Show local QR modal
-                setQrData({ ...data, orderNumber: orderId });
+                // Trigger the QR mutation and pass the number
+                payWithQRCodeMutation.mutate(generatedOrderNumber);
+            } else if (selectedId === 'new_card') {
+                // Trigger the Card mutation and pass the number
+                payWithCardMutation.mutate(generatedOrderNumber);
             }
-
-            // PATH B: New Card (Redirects to a new Page)
-            else if (selectedId === 'new_card') {
-                // Instead of opening a modal here, we navigate to your card payment screen
-                // and pass the order number so that screen can handle the PayWay logic
-                router.push({
-                    pathname: '/(protected)/(tabs)/cart/cardPayment', // Adjust this to your actual route
-                    params: { orderNumber: orderId }
-                });
-            }
-
-            // PATH C: Saved Method (Opens Modal or Direct Success)
             else if (SAVED_METHODS.some(method => method.id === selectedId)) {
-                // Usually, saved methods trigger a "Processing" modal or direct charge
-                Alert.alert("Processing", "Charging your saved card...");
+                const savedMethod = SAVED_METHODS.find(m => m.id === selectedId);
+
+                // 1. Call your "Charge Saved Method" API here
+                // const chargeResult = await chargeSavedMethod(data.orderNumber, savedMethod.id);
+
+                // 2. If successful:
                 handlePaymentSuccess();
             }
-
             else {
-                Alert.alert("Error", "Invalid selection.");
+                Alert.alert("Error", "Invalid selection. Please select a payment method.");
             }
         },
         onError: (error) => {
             console.error('❌ Order creation failed:', error);
-            Alert.alert("Order Failed", "Could not save your order.");
         },
     });
 
@@ -231,8 +243,20 @@ export default function StepThree() {
 
         try {
             const token = await getToken();
+            if (!token) throw new Error("No token found");
 
-            // 1. Prepare the Data (The same data we just verified in the log)
+            // --- NEW LOGIC: Determine Payment Method Label ---
+            let paymentMethodLabel = "";
+            if (selectedId === 'new_aba') {
+                paymentMethodLabel = "ABA KHQR";
+            } else if (selectedId === 'new_card') {
+                paymentMethodLabel = "Credit Card";
+            } else {
+                // Find the saved method label
+                const saved = SAVED_METHODS.find(m => m.id === selectedId);
+                paymentMethodLabel = saved ? `Saved ${saved.type} (***${saved.lastDigits})` : "Saved Method";
+            }
+
             const itemsData = items.map((item) => ({
                 productId: item.id,
                 quantity: item.quantity,
@@ -246,22 +270,28 @@ export default function StepThree() {
                 city: shippingDetails.city,
             };
 
-            // 2. Trigger the Mutation
-            // This will call your 'createOrder' function in @/src/api/orders
+            const deliveryOption = {
+                title: delivery.title,
+                fee: delivery.price
+            };
+
+            // 3. Execute Mutation with paymentMethod
             await createOrderMutation.mutateAsync({
                 itemsData,
                 shippingAddress,
-                deliveryOption: { title: delivery.title, fee: delivery.price },
-                paymentMethod: selectedId, // or your custom label
+                deliveryOption,
+                paymentMethod: paymentMethodLabel, // <--- Pass it here
                 token
             });
 
-            // The 'onSuccess' inside createOrderMutation will now take over 
-            // to trigger the QR code or Credit Card WebView.
+            // if (selectedId === 'new_aba') {
+            //     router.push('/(protected)/(tabs)/cart/abaQrDisplay');
+            // } else {
+            //     Alert.alert("Success", "Order placed successfully!");
+            // }
 
         } catch (error) {
-            console.error("Order Creation Error:", error);
-            Alert.alert("Error", "We couldn't create your order. Please try again.");
+            Alert.alert("Order Error", "Failed to process items.");
         } finally {
             setLoading(false);
         }
@@ -339,16 +369,8 @@ export default function StepThree() {
                 <View style={styles.modalOverlay}>
                     <View style={styles.qrContainer}>
                         <View style={styles.qrHeader}>
-                            <View>
-                                <Text style={styles.qrTitle}>Scan to Pay (KHQR)</Text>
-                                <Text style={[styles.timerText, timeLeft < 60 && { color: '#d9534f' }]}>
-                                    Expires in: {formatTime(timeLeft)}
-                                </Text>
-                            </View>
-                            <TouchableOpacity onPress={() => {
-                                setQrVisible(false);
-                                if (timerRef.current) clearInterval(timerRef.current);
-                            }}>
+                            <Text style={styles.qrTitle}>Scan to Pay (KHQR)</Text>
+                            <TouchableOpacity onPress={() => setQrVisible(false)}>
                                 <Ionicons name="close" size={28} color="#333" />
                             </TouchableOpacity>
                         </View>
@@ -396,6 +418,67 @@ export default function StepThree() {
                         </TouchableOpacity>
                     </View>
                 </View>
+            </Modal>
+
+            <Modal visible={showWebView} animationType="slide">
+                <SafeAreaView style={{ flex: 1 }}>
+                    <View style={styles.header}>
+                        {/* Added a Close button that clears the source to prevent ghost loading */}
+                        <TouchableOpacity onPress={() => {
+                            setShowWebView(false);
+                            setWebViewSource(null);
+                        }}>
+                            <Ionicons name="close" size={28} color="#333" />
+                        </TouchableOpacity>
+                        <Text style={styles.headerTitle}>Secure Payment</Text>
+                    </View>
+
+                    {webViewSource ? (
+                        <WebView
+                            source={webViewSource}
+                            javaScriptEnabled={true}
+                            domStorageEnabled={true}
+                            onNavigationStateChange={(navState) => {
+                                // 1. Log every URL change so you can see the PayWay redirect flow
+                                console.log("🔍 WebView Navigating to:", navState.url);
+
+                                // 2. Check for your specific App Scheme
+                                // Tip: Use .toLowerCase() to avoid case-sensitivity issues
+                                const currentUrl = navState.url.toLowerCase();
+                                const successTarget = 'mobile://success'.toLowerCase();
+                                const cancelTarget = 'mobile://cancel'.toLowerCase();
+
+                                // if (currentUrl.includes(successTarget)) {
+                                //     console.log("✅ MATCH FOUND: Redirecting to Success Screen...");
+                                //     handlePaymentSuccess();
+                                // }
+                                // else if (currentUrl.includes(cancelTarget)) {
+                                //     console.log("❌ MATCH FOUND: User Cancelled Payment.");
+                                //     setShowWebView(false);
+                                //     setWebViewSource(null);
+                                //     Alert.alert("Payment Cancelled", "The transaction was not completed.");
+                                // }
+                                // Check for the decoded version OR the weird base64 version from your log
+                                if (
+                                    navState.url.includes('mobile://success') ||
+                                    navState.url.includes('bw9iawxloi8vc3vjy2vzcw') // This is 'mobile://success' encoded
+                                ) {
+                                    console.log("🎯 SUCCESS DETECTED!");
+                                    handlePaymentSuccess();
+                                }
+                            }}
+                            startInLoadingState={true}
+                            renderLoading={() => (
+                                <ActivityIndicator
+                                    style={{ position: 'absolute', top: '50%', left: '45%' }}
+                                    size="large"
+                                />
+                            )}
+                        />
+                    ) : (
+                        <ActivityIndicator size="large" style={{ marginTop: 50 }} />
+                    )}
+                </SafeAreaView>
             </Modal>
 
             {/* Footer Button */}
@@ -455,7 +538,7 @@ const styles = StyleSheet.create({
     qrHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'flex-start', // Changed from center to accommodate two lines of text
+        alignItems: 'center',
         width: '100%',
         marginBottom: 20
     },
@@ -488,12 +571,5 @@ const styles = StyleSheet.create({
     deeplinkText: {
         color: 'white',
         fontWeight: 'bold'
-    },
-    timerText: {
-        fontSize: 14,
-        color: '#666',
-        fontWeight: '600',
-        marginTop: 4,
-    },
-
+    }
 });

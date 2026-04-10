@@ -8,8 +8,8 @@ export async function paymentKQCode(orderNumber: string) {
             // 'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          orderNumber,
-        }) 
+            orderNumber,
+        })
     });
 
     const data = await res.json();
@@ -27,8 +27,8 @@ export async function paymentCreditCard(orderNumber: string) {
             // 'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          orderNumber,
-        }) 
+            tran_id: orderNumber,
+        })
     });
 
     const data = await res.json();
@@ -38,15 +38,39 @@ export async function paymentCreditCard(orderNumber: string) {
     return data;
 }
 
+// export const checkPaymentStatus = async (orderNumber: string) => {
+//     try {
+//         const response = await fetch(`https://your-api.com/orders/${orderNumber}/status`);
+//         const data = await response.json();
+
+//         // Example: returns { status: 'PAID' } or { status: 'PENDING' }
+//         return data; 
+//     } catch (error) {
+//         console.error("Status check failed", error);
+//         throw error;
+//     }
+// };
+
 export const checkPaymentStatus = async (orderNumber: string) => {
-    try {
-        const response = await fetch(`https://your-api.com/orders/${orderNumber}/status`);
-        const data = await response.json();
-        
-        // Example: returns { status: 'PAID' } or { status: 'PENDING' }
-        return data; 
-    } catch (error) {
-        console.error("Status check failed", error);
-        throw error;
+    const res = await fetch(`${API_URL}/payment/aba/check-status/${orderNumber}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // 'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            tran_id: orderNumber,
+        })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+        throw new Error(data.message || 'Error reaching backend');
     }
+
+    return {
+        status: data.status,
+        success: data.success,
+        orderNumber: orderNumber
+    };
 };
