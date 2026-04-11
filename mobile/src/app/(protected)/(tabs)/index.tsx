@@ -5,22 +5,25 @@ import { SignOutButton } from '@/src/components/SignOutButton';
 // import { products } from '@/assets/Products';
 import ProductListItem from '@/src/components/ProductListItem';
 import HomeSecondContainer from '@/src/components/HomeSecondContainer';
-import {useQuery} from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { listProducts } from '@/src/api/products';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 
 
 export default function ShopPage() {
     const router = useRouter();
-    const {data: products , isLoading, error} = useQuery({
+    const { data: products, isLoading, error } = useQuery({
         queryKey: ['products'],
         queryFn: listProducts
     });
-    if (isLoading) {return <ActivityIndicator />};
-    if (error) {return <Text>Error Fetching Products</Text>};
-    
+    if (isLoading) { return <ActivityIndicator /> };
+    if (error) { return <Text>Error Fetching Products</Text> };
+
     return (
-        <View>
-            <View>
+        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+            <StatusBar style="dark" />
+            <View style={{backgroundColor: 'transparent', flex: 1}}>
                 <FlatList
                     data={products}
                     renderItem={({ item }) =>
@@ -31,13 +34,25 @@ export default function ShopPage() {
                     keyExtractor={item => item.id.toString()}
                     numColumns={2}
                     ListHeaderComponent={<HomeSecondContainer />}
-                    // contentContainerStyle={styles.flatListContent}
+                    contentContainerStyle={styles.flatListContent}
                     // columnWrapperStyle={styles.flatListColumn}
-                    style={{ paddingHorizontal: 10, paddingVertical: 5 }}
+                    style={{ flex: 1 }}
                 />
             </View>
-        </View>
+        </SafeAreaView>
+
     )
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#F4F5F9',
+        // backgroundColor: 'orange',
+    },
+    flatListContent: {
+        // backgroundColor: 'lightgrey',
+        paddingHorizontal: 15,
+        paddingBottom: 50, // This ensures the last item isn't hidden by the Tab Bar
+    }
+})
