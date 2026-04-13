@@ -18,7 +18,7 @@ export default function ShopPage() {
         queryFn: listProducts
     });
     if (isLoading) { return <ActivityIndicator /> };
-    if (error) { return <Text>Error Fetching Products</Text> };
+    if (error) { return <View style={{flex:1,justifyContent: 'center',alignItems: 'center',backgroundColor: 'white'}}><Text>Error Fetching Products</Text></View> };
 
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -47,7 +47,7 @@ export default function ShopPage() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F4F5F9',
+        backgroundColor: '#FBFCFD',
         // backgroundColor: 'orange',
     },
     flatListContent: {

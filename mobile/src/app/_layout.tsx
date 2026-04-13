@@ -6,8 +6,14 @@ import { tokenCache } from '@clerk/clerk-expo/token-cache'
 import * as SplashScreen from 'expo-splash-screen';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { PropsWithChildren, useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { getOnboardingStatus } from '../components/onBoardingScreen';
+import { 
+  useFonts, 
+  Poppins_400Regular, 
+  Poppins_700Bold ,
+  Poppins_500Medium
+} from '@expo-google-fonts/poppins';
 
 // Prevent the splash screen from hiding automatically
 SplashScreen.preventAutoHideAsync();
@@ -31,6 +37,11 @@ const ClerkSyncedProvider = ({ children }: React.PropsWithChildren) => {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const [fontLoaded, fontError] = useFonts({
+    Poppins_400Regular,
+    Poppins_700Bold,
+    Poppins_500Medium
+  });
 
   const [onboardingComplete, setOnboardingCompleteStatus] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
