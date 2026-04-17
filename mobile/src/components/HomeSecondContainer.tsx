@@ -43,7 +43,7 @@ export default function HomeSecondContainer() {
     };
     return (
         <View>
-
+            {/* Search Section */}
             <View style={styles.searchContainer}>
                 <View style={styles.searchContainerLeft}>
                     <View>
@@ -67,19 +67,13 @@ export default function HomeSecondContainer() {
                     </Pressable>
                 </View>
             </View>
-
+            {/* Banner Section */}
             <View style={styles.bannerWrapper}>
                 <BannerSection />
             </View>
-            <View style={{ paddingTop: 2000 }}></View>
-            <View style={{ paddingTop: 30 }} />
+            {/* <View style={{ paddingTop: 2000 }}></View> */}
             <View>
-                <View>
-                    <Text>Category</Text>
-                    <Link href='/(protected)/category'>
-                        <Text style={{ color: 'orange', }}>View All Category</Text>
-                    </Link>
-                </View>
+                {/* Search Filter Modal */}
                 <Modal
                     animationType="slide"
                     transparent={true}
@@ -152,6 +146,13 @@ export default function HomeSecondContainer() {
                         </Pressable>
                     </KeyboardAvoidingView>
                 </Modal>
+                {/* Category Section Start */}
+                <View>
+                    <Text>Category</Text>
+                    <Link href='/(protected)/category'>
+                        <Text style={{ color: 'orange', }}>View All Category</Text>
+                    </Link>
+                </View>
                 <View>
                     {/* MOVE LOADING LOGIC HERE */}
                     {isLoading ? (
@@ -162,11 +163,12 @@ export default function HomeSecondContainer() {
                         <FlatList
                             data={categories}
                             renderItem={({ item }) => (
-                                <View style={{ width: 100 }}>
+                                <View style={{ width: 60 }}>
                                     <CategoryListItem category={item} />
                                 </View>
                             )}
                             horizontal
+                            ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
                             keyExtractor={item => item.id.toString()}
                             style={{ paddingVertical: 10 }}
                         />

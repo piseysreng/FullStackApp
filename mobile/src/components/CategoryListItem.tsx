@@ -5,8 +5,8 @@ import { Link } from 'expo-router'
 
 export default function CategoryListItem({ category }: { category: Category }) {
   return (
-    <Link href={`/(protected)/category/${category.id.toString()}`} style={{ padding: 10, backgroundColor: 'orange', marginTop: 5 }}>
-      <View >
+    <Link href={`/(protected)/category/${category.id.toString()}`} style={{ padding: 10, backgroundColor: 'grey'}}>
+      <View style={styles.container}>
         <Text>Image</Text>
         <Text>{category.name}</Text>
       </View>
@@ -14,4 +14,8 @@ export default function CategoryListItem({ category }: { category: Category }) {
   )
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: 'blue'
+  }
+})
