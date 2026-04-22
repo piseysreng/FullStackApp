@@ -18,24 +18,25 @@ export default function ShopPage() {
         queryFn: listProducts
     });
     if (isLoading) { return <ActivityIndicator /> };
-    if (error) { return <View style={{flex:1,justifyContent: 'center',alignItems: 'center',backgroundColor: 'white'}}><Text>Error Fetching Products</Text></View> };
+    if (error) { return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}><Text>Error Fetching Products</Text></View> };
 
     return (
         <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
             <StatusBar style="dark" />
-            <View style={{backgroundColor: 'transparent', flex: 1}}>
+            <View style={{ backgroundColor: 'transparent', flex: 1 }}>
                 <FlatList
                     data={products}
-                    renderItem={({ item }) =>
-                        <View style={{ width: '48%' }}>
-                            <ProductListItem product={item} />
-                        </View>
-                    }
+                    renderItem={({ item, index }) => (
+                        // Remove the 50% width View and use flex: 1 in the style below
+                        <ProductListItem product={item} index={index} />
+                    )}
                     keyExtractor={item => item.id.toString()}
                     numColumns={2}
                     ListHeaderComponent={<HomeSecondContainer />}
                     contentContainerStyle={styles.flatListContent}
-                    // columnWrapperStyle={styles.flatListColumn}
+                    columnWrapperStyle={styles.columnWrapper}
+                    // This handles the vertical gap between rows
+                    ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
                     style={{ flex: 1 }}
                 />
             </View>
@@ -48,11 +49,16 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#FBFCFD',
-        // backgroundColor: 'orange',
     },
     flatListContent: {
-        // backgroundColor: 'lightgrey',
-        paddingHorizontal: 15,
-        paddingBottom: 50, // This ensures the last item isn't hidden by the Tab Bar
+        paddingHorizontal: 15, // Gutter on left and right
+        paddingBottom: 50,
+    },
+    columnWrapper: {
+        // This is the key: gap handles the space between columns
+        // while allowing the items to respect the container padding
+        gap: 20,
+        alignItems: 'flex-start', // This is the "magic" line
+        justifyContent: 'space-between'
     }
 })

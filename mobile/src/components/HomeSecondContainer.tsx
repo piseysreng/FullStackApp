@@ -8,6 +8,9 @@ import SearchIcon from './icons/searchIcon'
 import FilterIcon from './icons/filterIcon'
 import BannerSwiper from './Pages/frontPage/bannerSwiper'
 import BannerSection from './Pages/frontPage/bannerSection'
+import { CATEGORY_ICONS } from './icons/CategoryIcons/categoryIcons'
+import FontCustomBold from './fonts/FontCustomBold'
+import ArrowRightIcon from './icons/arrowRightIcon'
 
 const { width } = Dimensions.get('window');
 
@@ -147,11 +150,15 @@ export default function HomeSecondContainer() {
                     </KeyboardAvoidingView>
                 </Modal>
                 {/* Category Section Start */}
-                <View>
-                    <Text>Category</Text>
-                    <Link href='/(protected)/category'>
-                        <Text style={{ color: 'orange', }}>View All Category</Text>
-                    </Link>
+                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, paddingBottom: 20 }}>
+                    <FontCustomBold style={{ fontSize: 18 }}>Categories</FontCustomBold>
+                    <View>
+                        <Link href='/(protected)/category' asChild>
+                            <Pressable hitSlop={15}>
+                                <ArrowRightIcon color={"grey"} width={12} height={25} />
+                            </Pressable>
+                        </Link>
+                    </View>
                 </View>
                 <View>
                     {/* MOVE LOADING LOGIC HERE */}
@@ -162,11 +169,20 @@ export default function HomeSecondContainer() {
                     ) : (
                         <FlatList
                             data={categories}
-                            renderItem={({ item }) => (
-                                <View style={{ width: 60 }}>
-                                    <CategoryListItem category={item} />
-                                </View>
-                            )}
+                            renderItem={({ item }) => {
+                                // Look up the component from your array/object
+                                const IconComponent =
+                                    CATEGORY_ICONS[item.name as keyof typeof CATEGORY_ICONS] || CATEGORY_ICONS['default'];
+
+                                return (
+                                    <View style={{ width: 59 }}>
+                                        <CategoryListItem
+                                            category={item}
+                                            Icon={IconComponent} // Pass the SVG component as a prop
+                                        />
+                                    </View>
+                                );
+                            }}
                             horizontal
                             ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
                             keyExtractor={item => item.id.toString()}
@@ -184,6 +200,16 @@ export default function HomeSecondContainer() {
                         keyExtractor={item => item.id.toString()}
                         style={{ paddingHorizontal: 10, paddingVertical: 5 }}
                     /> */}
+                </View>
+                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 15, paddingBottom: 20 }}>
+                    <FontCustomBold style={{ fontSize: 18 }}>Featured products</FontCustomBold>
+                    <View>
+                        {/* <Link href='/(protected)/category' asChild> */}
+                            <Pressable hitSlop={15}>
+                                <ArrowRightIcon color={"grey"} width={12} height={25} />
+                            </Pressable>
+                        {/* </Link> */}
+                    </View>
                 </View>
             </View>
         </View>
